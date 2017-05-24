@@ -1,9 +1,9 @@
 package com.jerey.klog
 
 import android.os.Build
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.annotation.RequiresApi
+import android.support.v7.app.AppCompatActivity
 import com.jerey.loglib.KLog
 import com.jerey.loglib.log
 
@@ -13,20 +13,25 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        /**
+         * Klog 使用demo
+         */
         var str = "nihao"
-        str.log()
-           .toUpperCase()
-           .log("upper")
-           .toLowerCase()
-           .log("lower")
+        str.log()                         //直接输出该对象toString
+                .toUpperCase()
+                .log("upper")             //输出带提示的处理结果
+                .toLowerCase()            //继续处理
+                .log("lower")
 
+        //修改Klog设置, 开启边框打印
         KLog.getSettings()
-            .setBorderEnable(true)
+                .setBorderEnable(true)
 
-        KLog.a("aaaaaaa")
-        KLog.a(contents = "bbbbb")
+        KLog.a("aaaaaaa")            //普通log输出方式1
+        KLog.a(contents = "bbbbb")   //普通log输出方式2
+        KLog.i("jerey", "aaaaaaa")    //带tag输出
 
-        var list = arrayListOf<String>("aaa","bb","cccc", "ddddd")
+        var list = arrayListOf<String>("aaa", "bb", "cccc", "ddddd")
         list.log("init")
                 .map { it -> it.toUpperCase() }
                 .log("after map")
