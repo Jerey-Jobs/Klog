@@ -1,8 +1,5 @@
 package com.jerey.loglib
 
-import android.app.Activity
-import android.app.Application
-import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
 import org.json.JSONArray
@@ -11,49 +8,88 @@ import org.json.JSONObject
 import java.io.StringReader
 import java.io.StringWriter
 import java.util.*
-import java.util.concurrent.ExecutorService
+import java.util.stream.Stream
 import javax.xml.transform.OutputKeys
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.stream.StreamResult
 import javax.xml.transform.stream.StreamSource
 
 /**
- * ┌───┐ ┌───┬───┬───┬───┐ ┌───┬───┬───┬───┐ ┌───┬───┬───┬───┐ ┌───┬───┬───┐
- * │Esc│ │ F1│ F2│ F3│ F4│ │ F5│ F6│ F7│ F8�� │ F9│F10│F11│F12│ │P/S│S L│P/B│ ┌┐ ┌┐ ┌┐
- * └───┘ └───┴───┴───┴───┘ └───┴───┴───┴───┘ └───┴───┴───┴───┘ └───┴───┴───┘ └┘ └┘ └┘
- * ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬���──┬───┬───┬───┬───────┐ ┌───┬───┬───┐ ┌───┬───┬───┬───┐
+ * ┌───┐   ┌───┬───┬───┬───┐ ┌───┬───┬───┬───┐ ┌───┬───┬───┬───┐ ┌───┬───┬───┐
+ * │Esc│   │ F1│ F2│ F3│ F4│ │ F5│ F6│ F7│ F8│ │ F9│F10│F11│F12│ │P/S│S L│P/B│  ┌┐    ┌┐    ┌┐
+ * └───┘   └───┴───┴───┴───┘ └───┴───┴───┴───┘ └───┴───┴───┴───┘ └───┴───┴───┘  └┘    └┘    └┘
+ * ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───────┐ ┌───┬───┬───┐ ┌───┬───┬───┬───┐
  * │~ `│! 1│@ 2│# 3│$ 4│% 5│^ 6│& 7│* 8│( 9│) 0│_ -│+ =│ BacSp │ │Ins│Hom│PUp│ │N L│ / │ * │ - │
  * ├───┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─────┤ ├───┼───┼───┤ ├───┼───┼───┼───┤
- * │ Tab │ Q │ W │ E │ R │ T │ Y │ U │ I │ O │ P │{ [│} ]│ | \ │ │Del│End│PDn│ │ 7 │ 8 │ 9 │ │
+ * │ Tab │ Q │ W │ E │ R │ T │ Y │ U │ I │ O │ P │{ [│} ]│ | \ │ │Del│End│PDn│ │ 7 │ 8 │ 9 │   │
  * ├─────┴┬──┴┬──┴┬──┴┬──┴┬──┴┬──┴┬──┴┬──┴┬──┴┬──┴┬──┴┬──┴─────┤ └───┴───┴───┘ ├───┼───┼───┤ + │
- * │ Caps │ A │ S ��� D │ F │ G │ H │ J │ K │ L │: ;│" '│ Enter │ │ 4 │ 5 │ 6 │ │
- * ├──────┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴────────┤ ┌───┐ ├───┼───┼───┼───┤
- * │ Shift │ Z │ X │ C │ V │ B │ N │ M │< ,│> .│? /│ Shift │ │ ↑ │ │ 1 │ 2 │ 3 │ │
+ * │ Caps │ A │ S │ D │ F │ G │ H │ J │ K │ L │: ;│" '│ Enter  │               │ 4 │ 5 │ 6 │   │
+ * ├──────┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴────────┤     ┌───┐     ├───┼───┼───┼───┤
+ * │ Shift  │ Z │ X │ C │ V │ B │ N │ M │< ,│> .│? /│  Shift   │     │ ↑ │     │ 1 │ 2 │ 3 │   │
  * ├─────┬──┴─┬─┴──┬┴───┴───┴───┴───┴───┴──┬┴───┼───┴┬────┬────┤ ┌───┼───┼───┐ ├───┴───┼───┤ E││
- * │ Ctrl│ │Alt │ Space │ Alt│ │ │Ctrl│ │ ← │ ↓ │ → │ │ 0 │ . │←─┘│
+ * │ Ctrl│    │Alt │         Space         │ Alt│    │    │Ctrl│ │ ← │ ↓ │ → │ │   0   │ . │←─┘│
  * └─────┴────┴────┴───────────────────────┴────┴────┴────┴────┘ └───┴───┴───┘ └───────┴───┴───┘
- * Created by xiamin on 3/29/17.
  */
+
 /**
  * <pre>
  * author: xiamin
  * blog : http://jerey.cn
- * desc : 一个可控制边框美化,可控制打印等级,可控制Log info, 自动识别类名为Tag, 同时支持自定义Tag的日志工具库
+ * desc : 利用Kotlin语法扩展, 一个可控制边框美化,可控制打印等级,可控制Log info, 自动识别类名为Tag, 同时支持自定义Tag的日志工具库
  * </pre>
  */
-
-
-/**
- * Created by xiamin on 5/23/17.
- */
-
-fun <T> Any.log(): T {
-    KLog.i(contents = toString())
+fun <T> Any.log(hint: String = ""): T {
+    KLog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
     return this as T
 }
 
+fun <E> ArrayList<E>.log(hint: String = ""): ArrayList<E> {
+    KLog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
+    return this
+}
+
+fun <E> Collection<E>.log(hint: String = ""): Collection<E> {
+    KLog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
+    return this
+}
+
+fun <E> Stream<E>.log(hint: String = ""): Stream<E> {
+    KLog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
+    return this
+}
+
+fun <E> List<E>.log(hint: String = ""): List<E> {
+    KLog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
+    return this
+}
+
+fun String.log(hint: String = ""): String {
+    KLog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
+    return this
+}
+
+fun Int.log(hint: String = ""): Int {
+    KLog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
+    return this
+}
+
+fun Float.log(hint: String = ""): Float {
+    KLog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
+    return this
+}
+
+fun Long.log(hint: String = ""): Long {
+    KLog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
+    return this
+}
+
+fun Double.log(hint: String = ""): Double {
+    KLog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
+    return this
+}
 
 class KLog private constructor() {
+
     init {
         throw UnsupportedOperationException("u can't instantiate me...")
     }
@@ -145,11 +181,23 @@ class KLog private constructor() {
         private val mGlobalLogTag = "" // log标签
         private val mTagIsSpace = true // log标签是否为空白
         private val mLog2FileEnable = false// log是否写入文件
-        private var mLogBorderEnable = true // log边框
-        private var mLogInfoEnable = true // log详情开关
+        private var mLogBorderEnable = false // log边框
+        private var mLogInfoEnable = false // log详情开关
         private var mLogFilter = Log.VERBOSE // log过滤器
 
-        fun i(tag: String = mGlobalLogTag, vararg contents: Any) {
+        fun d(contents: Any) {
+            log(Log.DEBUG, mGlobalLogTag, contents)
+        }
+
+        fun d(tag: String = mGlobalLogTag, contents: Any) {
+            log(Log.DEBUG, tag, contents)
+        }
+
+        fun i(contents: Any) {
+            log(Log.INFO, mGlobalLogTag, contents)
+        }
+
+        fun i(tag: String = mGlobalLogTag, contents: Any) {
             log(Log.INFO, tag, contents)
         }
 
@@ -157,48 +205,36 @@ class KLog private constructor() {
             log(Log.WARN, mGlobalLogTag, contents)
         }
 
-        fun w(tag: String, vararg contents: Any) {
+        fun w(tag: String = mGlobalLogTag, contents: Any) {
             log(Log.WARN, tag, contents)
         }
 
-        fun e(contents: Any) {
-            log(Log.ERROR, mGlobalLogTag, contents)
-        }
-
-        fun e(tag: String, vararg contents: Any) {
+        fun e(tag: String = mGlobalLogTag, contents: Any) {
             log(Log.ERROR, tag, contents)
         }
 
-        fun a(vararg contents: Any) {
+        fun a(contents: Any) {
             log(Log.ASSERT, mGlobalLogTag, contents)
         }
 
-        fun a(tag: String, vararg contents: Any) {
+        fun a(tag: String = mGlobalLogTag, contents: Any) {
             log(Log.ASSERT, tag, contents)
         }
 
-        fun d(contents: Any) {
-            log(Log.DEBUG, mGlobalLogTag, contents)
-        }
-
-        fun d(tag: String, vararg contents: Any) {
-            log(Log.DEBUG, tag, contents)
-        }
-
-        fun json(contents: String) {
+        fun json(contents: Any) {
             log(JSON, mGlobalLogTag, contents)
         }
 
-        fun json(tag: String, vararg contents: Any) {
-            log(JSON, tag, *contents)
+        fun json(tag: String = mGlobalLogTag, contents: Any) {
+            log(JSON, tag, contents)
         }
 
         fun xml(contents: Any) {
             log(XML, mGlobalLogTag, contents)
         }
 
-        fun xml(tag: String, vararg contents: Any) {
-            log(XML, tag, *contents)
+        fun xml(tag: String = mGlobalLogTag, contents: Any) {
+            log(XML, tag, contents)
         }
 
         /**
@@ -206,13 +242,12 @@ class KLog private constructor() {
          * @param tag
          * @param objects
          */
-        private fun log(type: Int, tag: String, vararg objects: Any) {
-            Log.i("xiamin", "log ->type: $type tag:$tag content:$objects")
+        private fun log(type: Int, tag: String, objects: Any) {
             //全局未开,直接返回
             if (!mLogEnable) {
                 return
             }
-            val processContents = processObj(type, tag, *objects)
+            val processContents = processObj(type, tag, objects)
             var tagret = processContents[0]
             val msg = processContents[1]
             when (type) {
@@ -224,10 +259,18 @@ class KLog private constructor() {
             }
         }
 
-        private fun processObj(type: Int, tags: String, vararg contents: Any): Array<String> {
+        private fun processObj(type: Int, tags: String, contents: Any): Array<String> {
             var tag = tags
-            val targetElement = Thread.currentThread().stackTrace[5]
+            var targetElement = Thread.currentThread().stackTrace[5]
             var className = targetElement.className
+            if (className.contains("Klog")) {
+                targetElement = Thread.currentThread().stackTrace[6]
+                className = targetElement.className
+            }
+            if (className.contains("Klog")) {
+                targetElement = Thread.currentThread().stackTrace[7]
+                className = targetElement.className
+            }
             val classNameInfo = className.split(("\\.").toRegex()).dropLastWhile({ it.isEmpty() }).toTypedArray()
             if (classNameInfo.size > 0) {
                 className = classNameInfo[classNameInfo.size - 1]
@@ -235,15 +278,13 @@ class KLog private constructor() {
             if (className.contains("$")) {
                 className = className.split(("\\$").toRegex()).dropLastWhile({ it.isEmpty() }).toTypedArray()[0]
             }
-            Log.i("xiamin",className + " " + tag);
             if (!mTagIsSpace) {// 如果全局tag不为空，那就用全局tag
                 tag = mGlobalLogTag
             } else {// 全局tag为空时，如果传入的tag为空那就显示类名，否则显示tag
                 tag = if (TextUtils.isEmpty(tag) || isSpace(tag)) className else tag
             }
-            Log.i("xiamin",className + " " + tag);
             val head = Formatter()
-                    .format("Thread: %s, Method: %s (%s.java Line:%d)" + LINE_SEPARATOR,
+                    .format("Thread: %s, Method: %s (File:%s Line:%d)" + LINE_SEPARATOR,
                             Thread.currentThread().name,
                             targetElement.methodName,
                             className,
@@ -251,31 +292,12 @@ class KLog private constructor() {
                     .toString()
             var msg = NULL_TIPS
             if (contents != null) {
-                //正常使用情况下都是只有一个参数
-                if (contents.size == 1) {
-                    val `object` = contents[0]
-                    msg = if (`object` == null) NULL else `object`.toString()
-                    if (type == JSON) {
-                        msg = formatJson(msg)
-                    } else if (type == XML) {
-                        msg = formatXml(msg)
-                    }
-                } else {
-                    val sb = StringBuilder()
-                    var i = 0
-                    val len = contents.size
-                    while (i < len) {
-                        val content = contents[i]
-                        sb.append(ARGS)
-                                .append("[")
-                                .append(i)
-                                .append("]")
-                                .append(" = ")
-                                .append(if (content == null) NULL else content.toString())
-                                .append(LINE_SEPARATOR)
-                        i += 1
-                    }
-                    msg = sb.toString()
+                val `object` = contents
+                msg = if (`object` == null) NULL else `object`.toString()
+                if (type == JSON) {
+                    msg = formatJson(msg)
+                } else if (type == XML) {
+                    msg = formatXml(msg)
                 }
             }
             if (mLogBorderEnable) {
@@ -381,43 +403,8 @@ class KLog private constructor() {
          *
          * @return
          */
-        val settings: Settings
-            get() {
-                return Settings()
-            }
-
-//        fun monitorLifeCycle(application: Application) {
-//            application.registerActivityLifecycleCallbacks(object : )
-//        }
-//
-//        val lifeCallback = Application.ActivityLifecycleCallbacks() {
-//            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle) {
-//                LogTools.d(activity.getComponentName().getClassName(), "onCreate")
-//            }
-//
-//            override fun onActivityStarted(activity: Activity) {
-//                LogTools.d(activity.getComponentName().getClassName(), "onStart")
-//            }
-//
-//            override fun onActivityResumed(activity: Activity) {
-//                LogTools.d(activity.getComponentName().getClassName(), "onResume")
-//            }
-//
-//            override fun onActivityPaused(activity: Activity) {
-//                LogTools.d(activity.getComponentName().getClassName(), "onPause")
-//            }
-//
-//            override fun onActivityStopped(activity: Activity) {
-//                LogTools.d(activity.getComponentName().getClassName(), "onStop")
-//            }
-//
-//            override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
-//                LogTools.d(activity.getComponentName().getClassName(), "onSaveInstance")
-//            }
-//
-//            override fun onActivityDestroyed(activity: Activity) {
-//                LogTools.d(activity.getComponentName().getClassName(), "onDestroy")
-//            }
-//        }
+        fun getSettings(): Settings {
+            return Settings()
+        }
     }
 }
