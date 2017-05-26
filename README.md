@@ -37,6 +37,7 @@ module's build.gradle (模块的build.gradle)
 	}
 ```
 
+*或者, 您可以直接将Klog.kt文件拷贝至您的项目(推荐)*
 
 说明(Explanation)
 ------
