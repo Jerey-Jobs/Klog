@@ -39,56 +39,56 @@ import javax.xml.transform.stream.StreamSource
  * </pre>
  */
 fun <T> Any.log(hint: String = ""): T {
-    KLog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
+    Klog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
     return this as T
 }
 
 fun <E> ArrayList<E>.log(hint: String = ""): ArrayList<E> {
-    KLog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
+    Klog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
     return this
 }
 
 fun <E> Collection<E>.log(hint: String = ""): Collection<E> {
-    KLog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
+    Klog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
     return this
 }
 
 fun <E> Stream<E>.log(hint: String = ""): Stream<E> {
-    KLog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
+    Klog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
     return this
 }
 
 fun <E> List<E>.log(hint: String = ""): List<E> {
-    KLog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
+    Klog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
     return this
 }
 
 fun String.log(hint: String = ""): String {
-    KLog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
+    Klog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
     return this
 }
 
 fun Int.log(hint: String = ""): Int {
-    KLog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
+    Klog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
     return this
 }
 
 fun Float.log(hint: String = ""): Float {
-    KLog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
+    Klog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
     return this
 }
 
 fun Long.log(hint: String = ""): Long {
-    KLog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
+    Klog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
     return this
 }
 
 fun Double.log(hint: String = ""): Double {
-    KLog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
+    Klog.d(contents = if (hint.isEmpty()) toString() else (hint + "║ " + toString()))
     return this
 }
 
-class KLog private constructor() {
+class Klog private constructor() {
 
     init {
         throw UnsupportedOperationException("u can't instantiate me...")
@@ -105,7 +105,7 @@ class KLog private constructor() {
          * @return
          */
         fun setLogEnable(enable: Boolean): Settings {
-            KLog.mLogEnable = enable
+            Klog.mLogEnable = enable
             return this
         }
 
@@ -116,7 +116,7 @@ class KLog private constructor() {
          * @param logLevel
          */
         fun setLogLevel(logLevel: Int): Settings {
-            KLog.mLogFilter = logLevel
+            Klog.mLogFilter = logLevel
             return this
         }
 
@@ -127,7 +127,7 @@ class KLog private constructor() {
          * @return
          */
         fun setBorderEnable(enable: Boolean): Settings {
-            KLog.mLogBorderEnable = enable
+            Klog.mLogBorderEnable = enable
             return this
         }
 
@@ -138,7 +138,7 @@ class KLog private constructor() {
          * @return
          */
         fun setInfoEnable(enable: Boolean): Settings {
-            KLog.mLogInfoEnable = enable
+            Klog.mLogInfoEnable = enable
             return this
         }
 
@@ -149,7 +149,7 @@ class KLog private constructor() {
          */
         val logLevel: Int
             get() {
-                return KLog.mLogFilter
+                return Klog.mLogFilter
             }
 
         /**
@@ -159,7 +159,7 @@ class KLog private constructor() {
          * @return
          */
         fun setLogSaveDir(dir: String): Settings {
-            KLog.mLogDir = dir
+            Klog.mLogDir = dir
             return this
         }
     }

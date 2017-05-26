@@ -1,6 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-
+apply plugin: 'com.jfrog.bintray'
 
 android {
     compileSdkVersion 25
@@ -36,4 +36,86 @@ dependencies {
 }
 repositories {
     mavenCentral()
+}
+
+project.ext {
+    bintrayRepo = 'jerey'             //maven工程名
+    bintrayName = 'Klog'          //项目名
+
+    publishedGroupId = 'com.jerey.logtools'
+    libraryName = 'loglib'          //lib名字
+    artifact = 'loglib'
+
+    libraryDescription = 'A kotlin loglib for Android'
+
+    siteUrl = 'https://github.com/Jerey-Jobs/Klog'
+    gitUrl = 'https://github.com/Jerey-Jobs/Klog.git'
+
+    libraryVersion = '0.1'
+
+    developerId = 'jerey'
+    developerName = 'jerey'
+    developerEmail = 'jerey_jobs@foxmail.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+
+apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
+//apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
+
+
+
+
+version = libraryVersion
+
+if (project.hasProperty("android")) { // Android libraries
+    task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        from android.sourceSets.main.java.srcDirs
+    }
+
+    task javadoc(type: Javadoc) {
+        source = android.sourceSets.main.java.srcDirs
+        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    }
+} else { // Java libraries
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+// Bintray
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+
+    configurations = ['archives']
+    pkg {
+        repo = bintrayRepo
+        name = bintrayName
+        desc = libraryDescription
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = allLicenses
+        publish = true
+        publicDownloadNumbers = true
+        version {
+            desc = libraryDescription
+            gpg {
+                sign = true //Determines whether to GPG sign the files. The default is false
+                passphrase = properties.getProperty("bintray.gpg.password")
+                //Optional. The passphrase for GPG signing'
+            }
+        }
+    }
 }

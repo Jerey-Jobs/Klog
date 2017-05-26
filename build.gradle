@@ -3,19 +3,22 @@
 buildscript {
     ext.kotlin_version = '1.1.2-4'
     repositories {
-        maven { url 'https://maven.google.com' }
         jcenter()
+        maven { url 'https://maven.google.com' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0-alpha1'
+        classpath 'com.android.tools.build:gradle:2.3.1'
+        //classpath 'com.android.tools.build:gradle:3.0.0-alpha1'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.5'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
 
 allprojects {
+    tasks.withType(Javadoc).all { enabled = false }
     repositories {
         jcenter()
         maven { url 'https://maven.google.com' }
@@ -23,6 +26,10 @@ allprojects {
     }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+tasks.withType(Javadoc) {
+    options {
+        encoding "UTF-8"
+        charSet 'UTF-8'
+        links "http://docs.oracle.com/javase/7/docs/api"
+    }
 }
